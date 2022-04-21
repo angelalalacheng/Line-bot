@@ -11,6 +11,7 @@ from linebot.models import (
 )
 
 import os
+import re
 
 app = Flask(__name__)
 
@@ -38,20 +39,19 @@ def callback():
     return 'OK'
 
 
-line_bot_api.push_message(
-    'U84943d789c8a5078719df90a57144b1b', TextSendMessage(text='你可以開始了'))
-
 # 主要編輯程式的地方
-
-
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
-    message1 = TextSendMessage(text=event.message.text)
-    line_bot_api.reply_message(event.reply_token, message1)
+    line_bot_api.push_message(
+        'U84943d789c8a5078719df90a57144b1b', TextSendMessage(text='請開始你的表演'))
+    message = event.message.text
 
-    # line_bot_api.reply_message(
-    #     event.reply_token,
-    #     TextSendMessage(text=event.message.text))
+    if re.match("你是誰啊", message):
+        line_bot_api.reply_message(
+            event.reply_token, TextSendMessage("我是上帝安琪拉"))
+
+    else:
+        line_bot_api.reply_message(event.reply_token, message)
 
 
 if __name__ == "__main__":
