@@ -1,0 +1,6 @@
+#附上有import的東西+版本
+line-bot-sdk==2.2.1
+Flask==2.0.3
+beautifulsoup4==4.11.1
+requests==2.26.0
+lxml==4.6.4
