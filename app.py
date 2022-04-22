@@ -85,14 +85,14 @@ def handle_message(event):
     # line_bot_api.push_message(
     #     'U84943d789c8a5078719df90a57144b1b', TextSendMessage(text='請開始你的表演'))
     msg = event.message.text
-    if msg == "About作者":
+    if msg == "關於作者":
         line_bot_api.reply_message(
             event.reply_token, TextSendMessage(text='我是上帝安琪拉'))
 
     else:
         res = stock(msg)
         line_bot_api.reply_message(
-            event.reply_token, TextSendMessage(text=res))
+            event.reply_token, TextSendMessage(text=msg))
 
 
 if __name__ == "__main__":
