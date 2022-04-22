@@ -12,12 +12,35 @@ from linebot.models import (
 
 import os
 import re
+import requests
+from bs4 import BeautifulSoup
 
 app = Flask(__name__)
 
 line_bot_api = LineBotApi(
     'iBqRd5lyQOdBIDD+gvgBGEpXkj0sybsgLKlSfAU9/QylW3OXFqMArYP02/7paCg6A8DdLIa59TrwXLxkuWYIEnul8U5LFKWBXpeH5XGqqmx3GmWdTADJ/crLCH42t8BydKsdBzzgwWd8oNnI7zPvMAdB04t89/1O/w1cDnyilFU=')
 handler = WebhookHandler('6a03ea922ed3c6e718b1ca4ac9f0897f')
+
+
+# functions
+requests.packages.urllib3.disable_warnings()
+
+
+def stock():
+    target_url = 'https://tw.search.yahoo.com/search?p=台積電&fr=finance'
+    rs = requests.session()
+    res = rs.get(target_url, verify=False)
+    res.encoding = 'utf-8'
+    soup = BeautifulSoup(res.text, 'html.parser')
+    content = ""
+    for index, data in enumerate(soup.select('div.banner h4 span')):
+        # if index == 20:
+        # return content
+        title = data.text
+        #link = data['href']
+        content += '{}\n'.format(title)
+        #print("爬蟲:", content)
+    return content
 
 
 @app.route("/callback", methods=['POST'])
@@ -42,13 +65,17 @@ def callback():
 # 主要編輯程式的地方
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
-    line_bot_api.push_message(
-        'U84943d789c8a5078719df90a57144b1b', TextSendMessage(text='請開始你的表演'))
+    # line_bot_api.push_message(
+    #     'U84943d789c8a5078719df90a57144b1b', TextSendMessage(text='請開始你的表演'))
     message = event.message.text
 
     if re.match("你是誰啊", message):
         line_bot_api.reply_message(
             event.reply_token, TextSendMessage("我是上帝安琪拉"))
+
+    elif re.match("台積電", message):
+        res = stock()
+        line_bot_api.reply_message(event.reply_token, res)
 
     else:
         line_bot_api.reply_message(event.reply_token, message)
