@@ -17,6 +17,7 @@ from urllib.request import urlopen
 import json
 import numpy
 import pandas as pd
+from bs4 import BeautifulSoup
 
 app = Flask(__name__)
 
@@ -45,7 +46,10 @@ def stock(stockname):
 
     #　query data
     query_url = "http://mis.twse.com.tw/stock/api/getStockInfo.jsp?ex_ch=" + stock_list
-    data = json.loads(urlopen(query_url).read())
+    res = requests.get(query_url, headers={
+                       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36'})
+    soup = BeautifulSoup(res.text, "lxml")
+    data = json.loads(soup.p.string)
     Dict = data['msgArray'][0]  # type:dict
     # 用到的欄位: c(代號)、n(公司)、o(開盤價)、h(最高價)、l(最低價)、y(昨日收盤價)
 
