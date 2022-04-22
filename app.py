@@ -13,7 +13,13 @@ from linebot.models import (
 import os
 import re
 import requests
-from bs4 import BeautifulSoup
+import pandas as pd
+from urllib.request import urlopen
+import json
+
+from google.oauth2.service_account import Credentials
+import pandas as pd
+import gspread
 
 app = Flask(__name__)
 
@@ -22,25 +28,46 @@ line_bot_api = LineBotApi(
 handler = WebhookHandler('6a03ea922ed3c6e718b1ca4ac9f0897f')
 
 
-# functions
-requests.packages.urllib3.disable_warnings()
+# link to google sheet
+scope = ['https://www.googleapis.com/auth/spreadsheets']
+creds = Credentials.from_service_account_file(
+    "C:\\Users\\angela_cheng\\Desktop\\credential.json", scopes=scope)
+gs = gspread.authorize(creds)
+sheet = gs.open_by_url(
+    'https://docs.google.com/spreadsheets/d/1G6oEMnxnAmHdEp3vXD6_EpZ0zczHIZWTA1kvjJBMn4E/edit#gid=0')
+worksheet = sheet.get_worksheet(0)
+
+# stock function
 
 
-def stock():
-    target_url = 'https://tw.search.yahoo.com/search?p=台積電&fr=finance'
-    rs = requests.session()
-    res = rs.get(target_url, verify=False)
-    res.encoding = 'utf-8'
-    soup = BeautifulSoup(res.text, 'html.parser')
-    content = ""
-    for index, data in enumerate(soup.select('div.banner h4 span')):
-        # if index == 20:
-        # return content
-        title = data.text
-        #link = data['href']
-        content += '{}\n'.format(title)
-        #print("爬蟲:", content)
-    return content
+def stock(stockname):
+    df = pd.DataFrame(worksheet.get_all_records())
+    try:
+        choose1 = (df['name'] == stockname)
+        if choose1.any():
+            num = str(int(df[choose1]['number']))
+        else:
+            return "No company!"
+    except:
+        choose2 = (df['number'] == int(stockname))
+        if choose2.any():
+            num = stockname
+        else:
+            return "No company!"
+
+    stock_list = 'tse_'+num+'.tw'
+
+    #　query data
+    query_url = "http://mis.twse.com.tw/stock/api/getStockInfo.jsp?ex_ch=" + stock_list
+    data = json.loads(urlopen(query_url).read())
+    Dict = data['msgArray'][0]  # type:dict
+    # 用到的欄位: c(代號)、n(公司)、o(開盤價)、h(最高價)、l(最低價)、y(昨日收盤價)
+
+    reply = Dict["n"]+'\n'+"開盤價:"+Dict["o"]+'\n'+"最高價:" + \
+        Dict["h"]+'\n'+"最低價:"+Dict["l"]+'\n'+"昨日收盤價:"+Dict["y"] + \
+        '\n'
+
+    return reply
 
 
 @app.route("/callback", methods=['POST'])
@@ -69,18 +96,14 @@ def handle_message(event):
     #     'U84943d789c8a5078719df90a57144b1b', TextSendMessage(text='請開始你的表演'))
     message = event.message.text
 
-    if re.match("你是誰啊", message):
+    if re.match("About作者", message):
         line_bot_api.reply_message(
             event.reply_token, TextSendMessage(text='我是上帝安琪拉'))
 
-    elif re.match("台積電", message):
-        res = stock()
+    else:
+        res = stock(message)
         line_bot_api.reply_message(
             event.reply_token, TextSendMessage(text=res))
-
-    else:
-        line_bot_api.reply_message(
-            event.reply_token, TextSendMessage(text=message))
 
 
 if __name__ == "__main__":
