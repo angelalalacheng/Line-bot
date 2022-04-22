@@ -16,8 +16,7 @@ import requests
 import pandas as pd
 from urllib.request import urlopen
 import json
-
-from google.oauth2.service_account import Credentials
+import numpy
 import pandas as pd
 import gspread
 
@@ -27,29 +26,18 @@ line_bot_api = LineBotApi(
     'iBqRd5lyQOdBIDD+gvgBGEpXkj0sybsgLKlSfAU9/QylW3OXFqMArYP02/7paCg6A8DdLIa59TrwXLxkuWYIEnul8U5LFKWBXpeH5XGqqmx3GmWdTADJ/crLCH42t8BydKsdBzzgwWd8oNnI7zPvMAdB04t89/1O/w1cDnyilFU=')
 handler = WebhookHandler('6a03ea922ed3c6e718b1ca4ac9f0897f')
 
-
-# link to google sheet
-scope = ['https://www.googleapis.com/auth/spreadsheets']
-creds = Credentials.from_service_account_file(
-    "C:\\Users\\angela_cheng\\Desktop\\credential.json", scopes=scope)
-gs = gspread.authorize(creds)
-sheet = gs.open_by_url(
-    'https://docs.google.com/spreadsheets/d/1G6oEMnxnAmHdEp3vXD6_EpZ0zczHIZWTA1kvjJBMn4E/edit#gid=0')
-worksheet = sheet.get_worksheet(0)
-
 # stock function
 
 
 def stock(stockname):
-    df = pd.DataFrame(worksheet.get_all_records())
-    try:
-        choose1 = (df['name'] == stockname)
-        if choose1.any():
-            num = str(int(df[choose1]['number']))
-        else:
-            return "No company!"
-    except:
-        choose2 = (df['number'] == int(stockname))
+    df = pd.read_excel("stocknumber.xlsx")
+
+    choose1 = (df['name'] == stockname)
+    if choose1.any():
+        num = str(int(df[choose1]['number']))
+    else:
+        choose2 = (df['number'] == numpy.int64(stockname))
+        print(choose2)
         if choose2.any():
             num = stockname
         else:
