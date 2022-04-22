@@ -71,14 +71,16 @@ def handle_message(event):
 
     if re.match("你是誰啊", message):
         line_bot_api.reply_message(
-            event.reply_token, TextSendMessage("我是上帝安琪拉"))
+            event.reply_token, TextSendMessage(text='我是上帝安琪拉'))
 
     elif re.match("台積電", message):
         res = stock()
-        line_bot_api.reply_message(event.reply_token, res)
+        line_bot_api.reply_message(
+            event.reply_token, TextSendMessage(text=res))
 
     else:
-        line_bot_api.reply_message(event.reply_token, message)
+        line_bot_api.reply_message(
+            event.reply_token, TextSendMessage(text=message))
 
 
 if __name__ == "__main__":
