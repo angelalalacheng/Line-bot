@@ -11,14 +11,12 @@ from linebot.models import (
 )
 
 import os
-import re
 import requests
 import pandas as pd
 from urllib.request import urlopen
 import json
 import numpy
 import pandas as pd
-import gspread
 
 app = Flask(__name__)
 
@@ -82,16 +80,17 @@ def callback():
 def handle_message(event):
     # line_bot_api.push_message(
     #     'U84943d789c8a5078719df90a57144b1b', TextSendMessage(text='請開始你的表演'))
-    message = event.message.text
-
-    if re.match("About作者", message):
+    msg = event.message.text
+    if msg == "About作者":
         line_bot_api.reply_message(
             event.reply_token, TextSendMessage(text='我是上帝安琪拉'))
 
     else:
-        res = stock(message)
         line_bot_api.reply_message(
-            event.reply_token, TextSendMessage(text=res))
+            event.reply_token, TextSendMessage(text=msg))
+        # res = stock(msg)
+        # line_bot_api.reply_message(
+        #     event.reply_token, TextSendMessage(text=res))
 
 
 if __name__ == "__main__":
