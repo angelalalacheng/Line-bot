@@ -95,10 +95,8 @@ def handle_message(event):
     #     line_bot_api.reply_message(
     #         event.reply_token, TextSendMessage(text='我是上帝安琪拉'))
     # else:
-
-    df = pd.read_excel("stocknumber.xlsx")
-
     line_bot_api.reply_message(event.reply_token, TextSendMessage(text=msg))
+    df = pd.read_excel("stocknumber.xlsx")
 
     # choose1 = (df['name'] == msg)
     # if choose1.any():
