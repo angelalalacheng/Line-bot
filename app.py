@@ -47,81 +47,57 @@ def callback():
 
 
 line_bot_api.push_message(
-    'U84943d789c8a5078719df90a57144b1b', TextSendMessage(text='趕快來查查看股票資訊吧'))
+    'U84943d789c8a5078719df90a57144b1b', TextSendMessage(text='趕快來查查看今天股票資訊吧\n股市代碼表:https://isin.twse.com.tw/isin/C_public.jsp?strMode=2'))
 
 
-# # stock function
-# def stock(stockname):
-#     df = pd.read_excel("stocknumber.xlsx")
+# stock function
+def stock(stockname):
+    # df = pd.read_excel("stocknumber.xlsx")
 
-#     choose1 = (df['name'] == stockname)
-#     if choose1.any():
-#         num = str(int(df[choose1]['number']))
-#     else:
-#         choose2 = (df['number'] == numpy.int64(stockname))
-#         print(choose2)
-#         if choose2.any():
-#             num = stockname
-#         else:
-#             return "No company!"
-
-#     stock_list = 'tse_'+num+'.tw'
-
-#     #　query data
-#     query_url = "http://mis.twse.com.tw/stock/api/getStockInfo.jsp?ex_ch=" + stock_list
-#     res = requests.get(query_url, headers={
-#                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36'})
-#     res.encoding = 'utf-8'
-
-#     soup = BeautifulSoup(res.text, "lxml")
-#     data = json.loads(soup.p.string)
-#     Dict = data['msgArray'][0]  # type:dict
-#     # 用到的欄位: c(代號)、n(公司)、o(開盤價)、h(最高價)、l(最低價)、y(昨日收盤價)
-
-#     reply = Dict["n"]+'\n'+"開盤價:"+Dict["o"]+'\n'+"最高價:" + \
-#         Dict["h"]+'\n'+"最低價:"+Dict["l"]+'\n'+"昨日收盤價:"+Dict["y"] + \
-#         '\n'
-
-#     return reply
-
-
-# 主要編輯程式的地方
-
-
-@handler.add(MessageEvent, message=TextMessage)
-def handle_message(event):
-    msg = event.message.text
-    #df = pd.read_excel("stocknumber.xlsx")
-
-    # choose1 = (df['name'] == msg)
+    # choose1 = (df['name'] == stockname)
     # if choose1.any():
     #     num = str(int(df[choose1]['number']))
     # else:
-    # choose2 = (df['number'] == numpy.int64(msg))
-    # print(choose2)
-    # if choose2.any():
-    #     num = msg
-    # else:
-    #     return "No company!"
+    #     choose2 = (df['number'] == numpy.int64(stockname))
+    #     print(choose2)
+    #     if choose2.any():
+    #         num = stockname
+    #     else:
+    #         return "No company!"
 
-    num = msg
+    num = stockname
     stock_list = 'tse_'+num+'.tw'
 
     #　query data
     query_url = "http://mis.twse.com.tw/stock/api/getStockInfo.jsp?ex_ch=" + stock_list
     res = requests.get(query_url, headers={
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36'})
+                       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36'})
     res.encoding = 'utf-8'
-
     soup = BeautifulSoup(res.text, "lxml")
     data = json.loads(soup.p.string)
-    Dict = data['msgArray'][0]  # type:dict
     # 用到的欄位: c(代號)、n(公司)、o(開盤價)、h(最高價)、l(最低價)、y(昨日收盤價)
+    try:
+        Dict = data['msgArray'][0]  # type:dict
+        reply = Dict["n"]+'\n'+"開盤價:"+Dict["o"]+'\n'+"最高價:" + \
+            Dict["h"]+'\n'+"最低價:"+Dict["l"]+'\n'+"昨日收盤價:"+Dict["y"]
+        return reply
+    except:
+        return "沒有這間公司喔!再輸入一次"
 
-    reply = Dict["n"]+'\n'+"開盤價:"+Dict["o"]+'\n'+"最高價:" + \
-        Dict["h"]+'\n'+"最低價:"+Dict["l"]+'\n'+"昨日收盤價:"+Dict["y"] + '\n'
 
-    line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply))
+# 主要編輯程式的地方
+
+@handler.add(MessageEvent, message=TextMessage)
+def handle_message(event):
+    if re.match("關於作者", msg):
+        line_bot_api.reply_message(
+            event.reply_token, TextSendMessage(text="大家好~我是Angela"))
+
+    else:
+        msg = event.message.text
+        reply = stock(msg)
+        line_bot_api.reply_message(
+            event.reply_token, TextSendMessage(text=reply))
 
 
 if __name__ == "__main__":
