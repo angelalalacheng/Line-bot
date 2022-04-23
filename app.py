@@ -89,12 +89,12 @@ def stock(stockname):
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
+    msg = event.message.text
     if re.match("關於作者", msg):
         line_bot_api.reply_message(
             event.reply_token, TextSendMessage(text="大家好~我是Angela"))
 
     else:
-        msg = event.message.text
         reply = stock(msg)
         line_bot_api.reply_message(
             event.reply_token, TextSendMessage(text=reply))
