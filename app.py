@@ -49,6 +49,8 @@ def stock(stockname):
     query_url = "http://mis.twse.com.tw/stock/api/getStockInfo.jsp?ex_ch=" + stock_list
     res = requests.get(query_url, headers={
                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36'})
+    res.encoding = 'utf-8'
+
     soup = BeautifulSoup(res.text, "lxml")
     data = json.loads(soup.p.string)
     Dict = data['msgArray'][0]  # type:dict
@@ -80,11 +82,14 @@ def callback():
     return 'OK'
 
 
+line_bot_api.push_message(
+    'U84943d789c8a5078719df90a57144b1b', TextSendMessage(text='趕快來查查看股票資訊吧'))
+
 # 主要編輯程式的地方
+
+
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
-    # line_bot_api.push_message(
-    #     'U84943d789c8a5078719df90a57144b1b', TextSendMessage(text='請開始你的表演'))
     msg = event.message.text
     # if re.match("關於作者", msg):
     #     line_bot_api.reply_message(
