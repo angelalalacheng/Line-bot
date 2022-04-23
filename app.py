@@ -111,6 +111,7 @@ def handle_message(event):
 
     stock_list = 'tse_'+num+'.tw'
 
+    line_bot_api.reply_message(event.reply_token, TextSendMessage(text=msg))
     #　query data
     query_url = "http://mis.twse.com.tw/stock/api/getStockInfo.jsp?ex_ch=" + stock_list
     res = requests.get(query_url, headers={
@@ -121,7 +122,6 @@ def handle_message(event):
     data = json.loads(soup.p.string)
     Dict = data['msgArray'][0]  # type:dict
     # 用到的欄位: c(代號)、n(公司)、o(開盤價)、h(最高價)、l(最低價)、y(昨日收盤價)
-    line_bot_api.reply_message(event.reply_token, TextSendMessage(text="有喔"))
 
     reply = Dict["n"]+'\n'+"開盤價:"+Dict["o"]+'\n'+"最高價:" + \
         Dict["h"]+'\n'+"最低價:"+Dict["l"]+'\n'+"昨日收盤價:"+Dict["y"] + '\n'
