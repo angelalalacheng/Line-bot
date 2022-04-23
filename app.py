@@ -121,11 +121,12 @@ def handle_message(event):
     data = json.loads(soup.p.string)
     Dict = data['msgArray'][0]  # type:dict
     # 用到的欄位: c(代號)、n(公司)、o(開盤價)、h(最高價)、l(最低價)、y(昨日收盤價)
+    line_bot_api.reply_message(event.reply_token, TextSendMessage(text="有喔"))
 
     reply = Dict["n"]+'\n'+"開盤價:"+Dict["o"]+'\n'+"最高價:" + \
         Dict["h"]+'\n'+"最低價:"+Dict["l"]+'\n'+"昨日收盤價:"+Dict["y"] + '\n'
 
-    line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply))
+    # line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply))
 
 
 if __name__ == "__main__":
