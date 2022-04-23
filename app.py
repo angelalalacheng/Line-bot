@@ -95,8 +95,8 @@ def handle_message(event):
     #     line_bot_api.reply_message(
     #         event.reply_token, TextSendMessage(text='我是上帝安琪拉'))
     # else:
-    # res = stock(msg)
-    line_bot_api.reply_message(event.reply_token, TextSendMessage(text=msg))
+    res = stock(msg)
+    line_bot_api.reply_message(event.reply_token, TextSendMessage(text=res))
 
 
 if __name__ == "__main__":
