@@ -7,7 +7,7 @@ from linebot.exceptions import (
     InvalidSignatureError
 )
 from linebot.models import (
-    MessageEvent, TextMessage, TextSendMessage,
+    MessageEvent, TextMessage, TextSendMessage, StickerMessage, StickerSendMessage
 )
 
 import os
@@ -79,10 +79,16 @@ def stock(stockname):
     try:
         Dict = data['msgArray'][0]  # type:dict
         reply = Dict["n"]+'\n'+"開盤價:"+Dict["o"]+'\n'+"最高價:" + \
-            Dict["h"]+'\n'+"最低價:"+Dict["l"]+'\n'+"昨日收盤價:"+Dict["y"]
+            Dict["h"]+'\n'+"最低價:"+Dict["l"]+'\n'+"昨日收盤價:"+Dict["y"] + \
+            '\n\n股市代碼表:https://isin.twse.com.tw/isin/C_public.jsp?strMode=2'
         return reply
     except:
         return "沒有這間公司喔!再輸入一次"
+
+
+def intro():
+    intro = "大家好~我是Angela\n\n人格特質:\n‧resourceful\n‧broad-minded\n‧curious\n\n社團經驗:\n‧2021新生知訊網執行長\n‧親善大使公關進修組組長\n‧GDSC\n‧竹友會\n‧系上返服/迎新\n\nSideProject:\n‧專題\n‧類神經網路\n‧Line Bot\n‧Chat room(昨天寫完..)\n\n希望自己有機會可以成為Line的一份子~"
+    return intro
 
 
 # 主要編輯程式的地方
@@ -91,13 +97,21 @@ def stock(stockname):
 def handle_message(event):
     msg = event.message.text
     if re.match("關於作者", msg):
+        reply = intro()
         line_bot_api.reply_message(
-            event.reply_token, TextSendMessage(text="大家好~我是Angela"))
+            event.reply_token, TextSendMessage(text=reply))
 
     else:
         reply = stock(msg)
         line_bot_api.reply_message(
             event.reply_token, TextSendMessage(text=reply))
+
+
+@handler.add(MessageEvent, message=StickerMessage)
+def handle_sticker(event):
+    sticker_message = StickerSendMessage(
+        package_id='11539', sticker_id='52114118')
+    line_bot_api.reply_message(event.reply_token, sticker_message)
 
 
 if __name__ == "__main__":
